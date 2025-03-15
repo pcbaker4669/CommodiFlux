@@ -9,6 +9,7 @@ agents = []
 commodity_prices = {'Oil': [], 'Wheat': [], 'Gold': []}
 tick = 0
 running = False
+trade_links = []  # Store temporary trade interactions
 
 # Define agent roles and their colors
 agent_roles = {
@@ -31,15 +32,40 @@ def initialize_model():
         commodity_prices[key] = [random.uniform(50, 150)]
     update_display()
 
+
+def find_trade_partners():
+    """Find nearby agents and create trade interactions."""
+    global trade_links
+    trade_links = []  # Clear previous trade links
+
+    for i, agent in enumerate(agents):
+        for j, other_agent in enumerate(agents):
+            if i != j:  # Avoid self-trade
+                # Agents trade if they are within 2 grid spaces of each other
+                if abs(agent['x'] - other_agent['x']) <= 2 and abs(agent['y'] - other_agent['y']) <= 2:
+                    # Define trading rules: Producers sell, Consumers buy, Speculators trade randomly
+                    if (agent['role'] == 'Producer' and other_agent['role'] == 'Consumer') or \
+                            (agent['role'] == 'Speculator' and random.random() > 0.5):
+                        trade_links.append((agent, other_agent))  # Store link for visualization
+
+
 def update_model():
-    """Update agent positions and commodity prices."""
+    """Update agent positions and commodity prices, and simulate trading."""
     global tick
     tick += 1
+
+    # Move agents randomly
     for agent in agents:
         agent['x'] = (agent['x'] + random.choice([-1, 0, 1])) % grid_size[0]
         agent['y'] = (agent['y'] + random.choice([-1, 0, 1])) % grid_size[1]
+
+    # Simulate trading
+    find_trade_partners()
+
+    # Update commodity prices with small fluctuations
     for key in commodity_prices:
         commodity_prices[key].append(commodity_prices[key][-1] * (1 + random.uniform(-0.02, 0.02)))
+
     update_display()
 
 def run_model():
@@ -67,6 +93,15 @@ def update_display():
     # Plot agents with their role-based colors
     for agent in agents:
         ax_turtle.scatter(agent['x'], agent['y'], color=agent_roles[agent['role']], label=agent['role'], alpha=0.8)
+
+        # Draw trade interactions with arrows (green lines)
+    for trade in trade_links:
+        agent_a, agent_b = trade
+        ax_turtle.arrow(
+            agent_a['x'], agent_a['y'],
+            agent_b['x'] - agent_a['x'], agent_b['y'] - agent_a['y'],
+            head_width=0.3, head_length=0.3, fc='green', ec='green', alpha=0.7
+        )
 
     # Add legend to differentiate agent roles
     handles, labels = ax_turtle.get_legend_handles_labels()
