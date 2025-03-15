@@ -1,10 +1,7 @@
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
-import tkinter as tk
-from tkinter import ttk
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import random
-import numpy as np
+import tkinter as tk
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 # Agent-based model parameters
 grid_size = (20, 20)
@@ -13,15 +10,29 @@ commodity_prices = {'Oil': [], 'Wheat': [], 'Gold': []}
 tick = 0
 running = False
 
+# Define agent roles and their colors
+agent_roles = {
+    'Producer': 'green',   # 🟢 Farmers, miners
+    'Consumer': 'blue',    # 🔵 Factories, buyers
+    'Speculator': 'red'    # 🔴 Traders, hedge funds
+}
+
 def initialize_model():
+    """Initialize agents and commodity prices."""
     global agents, tick, commodity_prices
     tick = 0
-    agents = [{'x': random.randint(0, grid_size[0]-1), 'y': random.randint(0, grid_size[1]-1)} for _ in range(10)]
+    agents = [
+        {'x': random.randint(0, grid_size[0]-1),
+         'y': random.randint(0, grid_size[1]-1),
+         'role': random.choice(list(agent_roles.keys()))}  # Assign a role
+        for _ in range(10)
+    ]
     for key in commodity_prices:
         commodity_prices[key] = [random.uniform(50, 150)]
     update_display()
 
 def update_model():
+    """Update agent positions and commodity prices."""
     global tick
     tick += 1
     for agent in agents:
@@ -32,6 +43,7 @@ def update_model():
     update_display()
 
 def run_model():
+    """Continuously update the model at the selected tick rate."""
     global running
     running = True
     def loop():
@@ -41,18 +53,30 @@ def run_model():
     loop()
 
 def stop_model():
+    """Stop the continuous model execution."""
     global running
     running = False
 
 def update_display():
+    """Update the visualization: Turtle space and line graphs."""
     ax_turtle.clear()
     ax_turtle.set_xticks(range(grid_size[0]))
     ax_turtle.set_yticks(range(grid_size[1]))
     ax_turtle.grid(True)
+
+    # Plot agents with their role-based colors
     for agent in agents:
-        ax_turtle.scatter(agent['x'], agent['y'], color='blue')
+        ax_turtle.scatter(agent['x'], agent['y'], color=agent_roles[agent['role']], label=agent['role'], alpha=0.8)
+
+    # Add legend to differentiate agent roles
+    handles, labels = ax_turtle.get_legend_handles_labels()
+    unique_labels = dict(zip(labels, handles))  # Remove duplicate legends
+    ax_turtle.legend(unique_labels.values(), unique_labels.keys(), loc='upper right')
+
     canvas_turtle.draw()
-    for idx, (key, ax) in enumerate(ax_graphs.items()):
+
+    # Update graphs
+    for key, ax in ax_graphs.items():
         ax.clear()
         ax.plot(commodity_prices[key], label=key)
         ax.legend()
