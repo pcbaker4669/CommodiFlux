@@ -161,6 +161,7 @@ def update_display():
     # ✅ Ensure x-axis grows dynamically for price graphs
     for key, ax in ax_graphs.items():
         ax.clear()
+        ax_turtle.set_title("Turtle Space: Market Agents & Trading")
         x_data = list(range(len(commodity_prices[key])))  # Correctly aligns time ticks
         y_data = commodity_prices[key]
 
@@ -168,7 +169,7 @@ def update_display():
         ax.set_xlim(0, max(10, len(x_data)))  # Ensure axis scales dynamically
         ax.set_xlabel("Time (Ticks)")
         ax.set_ylabel("Price")
-        ax.legend()
+        ax.set_title(key)  # ✅ Use key as title instead of legend
 
     canvas_graphs.draw_idle()  # ✅ Prevent unnecessary UI lag
 
@@ -208,6 +209,7 @@ canvas_turtle.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 # Graphs
 fig_graphs, ax_graphs = plt.subplots(1, 3, figsize=(10, 3))
+fig_graphs.subplots_adjust(hspace=0.5, wspace=0.3, bottom=0.25)  # ✅ Increase space between graphs
 ax_graphs = {key: ax for key, ax in zip(commodity_prices.keys(), ax_graphs)}
 canvas_graphs = FigureCanvasTkAgg(fig_graphs, master=visual_frame)
 canvas_graphs.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
