@@ -24,6 +24,7 @@ num_agents = tk.IntVar(value=5)
 speculator_aggression = tk.DoubleVar(value=1.0)
 correlation_multiplier = tk.DoubleVar(value=0.0002)
 tick_rate = tk.IntVar(value=5)
+max_ticks = tk.IntVar(value=100)  # Default max ticks to 100
 
 
 agent_roles = {
@@ -115,7 +116,9 @@ def update_model():
         commodity_prices[key].append(new_price)
         # **✅ Print Debugging Data**
 
-        print(f"Tick {tick} | {key}: Supply={supply}, Demand={demand}, Price={new_price:.2f}")
+        print(f"Tick {tick} | {key}: Supply={supply}, Demand={demand}, Price={new_price:.2f}, "
+              f"Agents={num_agents.get()}, Speculator Aggression= {speculator_aggression.get()}, "
+              f"Correlation Multiplier = {correlation_multiplier.get()}")
     update_display()
 
 
@@ -124,12 +127,16 @@ def run_model():
     """Continuously update the model at the selected tick rate with smooth UI updates."""
     global running
     running = True
+    max_tick_value = max_ticks.get()  # Get max ticks from UI input
 
     def loop():
-        if running:
+        global tick
+        if running and tick < max_tick_value:
             update_model()
             root.update_idletasks()  # ✅ Ensures smooth rendering without UI skipping
             root.after(int(1000 / tick_rate.get()), loop)
+        else:
+            stop_model()
 
     loop()
 
@@ -203,6 +210,12 @@ speculator_frame = tk.LabelFrame(control_frame, text="Speculator Aggression", pa
 speculator_frame.pack(fill="x", padx=5, pady=5)
 tk.Scale(speculator_frame, from_=1, to=10, orient=tk.HORIZONTAL, variable=speculator_aggression).pack()
 
+# Frame to contain the Max Ticks label and input box
+max_ticks_frame = tk.LabelFrame(control_frame, text="Max Ticks", padx=5, pady=5)
+max_ticks_frame.pack(fill="x", pady=5)
+
+tk.Entry(max_ticks_frame, textvariable=max_ticks).pack()
+
 # Visualization Panel
 visual_frame = tk.Frame(root)
 visual_frame.pack(side=tk.RIGHT, expand=True, fill=tk.BOTH)
@@ -220,4 +233,15 @@ canvas_graphs = FigureCanvasTkAgg(fig_graphs, master=visual_frame)
 canvas_graphs.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
 
 initialize_model()
+
+def on_closing():
+    """Handle window closing event to stop the simulation and exit."""
+    global running
+    running = False
+    root.quit()  # Stop the Tkinter event loop
+    root.destroy()  # Close the window completely
+
+# Bind the closing event
+root.protocol("WM_DELETE_WINDOW", on_closing)
+
 root.mainloop()
