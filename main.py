@@ -23,6 +23,7 @@ running = False
 num_agents = tk.IntVar(value=5)
 speculator_aggression = tk.DoubleVar(value=1.0)
 correlation_multiplier = tk.DoubleVar(value=0.0002)
+tick_rate = tk.IntVar(value=5)
 
 
 agent_roles = {
@@ -185,18 +186,22 @@ tk.Button(control_frame, text="Go", command=update_model).pack(pady=5)
 tk.Button(control_frame, text="Go Forever", command=run_model).pack(pady=5)
 tk.Button(control_frame, text="Stop", command=stop_model).pack(pady=5)
 
-tk.Label(control_frame, text="Tick Rate").pack()
-tick_rate = tk.IntVar(value=5)
-tk.Scale(control_frame, from_=1, to=20, orient=tk.HORIZONTAL, variable=tick_rate).pack()
+# Grouped Control Elements with Borders
+tick_frame = tk.LabelFrame(control_frame, text="Tick Rate", padx=5, pady=5)
+tick_frame.pack(fill="x", padx=5, pady=5)
+tk.Scale(tick_frame, from_=1, to=20, orient=tk.HORIZONTAL, variable=tick_rate).pack()
 
-tk.Label(control_frame, text="Number of Agents").pack()
-tk.Scale(control_frame, from_=5, to=50, orient=tk.HORIZONTAL, variable=num_agents).pack()
+agent_frame = tk.LabelFrame(control_frame, text="Number of Agents", padx=5, pady=5)
+agent_frame.pack(fill="x", padx=5, pady=5)
+tk.Scale(agent_frame, from_=5, to=50, orient=tk.HORIZONTAL, variable=num_agents).pack()
 
-tk.Label(control_frame, text="Correlation Multiplier").pack()
-tk.Scale(control_frame, from_=1, to=100, orient=tk.HORIZONTAL, variable=correlation_multiplier).pack()
+correlation_frame = tk.LabelFrame(control_frame, text="Correlation Multiplier", padx=5, pady=5)
+correlation_frame.pack(fill="x", padx=5, pady=5)
+tk.Scale(correlation_frame, from_=1, to=100, orient=tk.HORIZONTAL, variable=correlation_multiplier).pack()
 
-tk.Label(control_frame, text="Speculator Aggression").pack()
-tk.Scale(control_frame, from_=1, to=10, orient=tk.HORIZONTAL, variable=speculator_aggression).pack()
+speculator_frame = tk.LabelFrame(control_frame, text="Speculator Aggression", padx=5, pady=5)
+speculator_frame.pack(fill="x", padx=5, pady=5)
+tk.Scale(speculator_frame, from_=1, to=10, orient=tk.HORIZONTAL, variable=speculator_aggression).pack()
 
 # Visualization Panel
 visual_frame = tk.Frame(root)
